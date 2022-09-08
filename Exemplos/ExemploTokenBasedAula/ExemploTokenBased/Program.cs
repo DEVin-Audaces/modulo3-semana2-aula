@@ -1,11 +1,22 @@
 using ExemploTokenBased.Data;
+using ExemploTokenBased.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
     .AddControllers().Services
-    .AddAuthentication();
+    .AddAuthentication(x =>
+    {
+        x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer();
+
+builder.Services
+    .AddScoped<IUsuarioService, UsuarioService>()
+    .AddScoped<ITokenService, TokenService>();
 
 builder.Services
     .AddDbContext<TokenBasedContext>()
