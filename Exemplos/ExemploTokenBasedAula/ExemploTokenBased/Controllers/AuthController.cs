@@ -9,16 +9,18 @@ namespace ExemploTokenBased.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly IUsuarioService _usuarioService;
+    private readonly ITokenService _tokenService;
 
     public AuthController(
-        IUsuarioService usuarioService
-    )
+        IUsuarioService usuarioService, 
+        ITokenService tokenService)
     {
         _usuarioService = usuarioService;
+        _tokenService = tokenService;
     }
 
     [HttpPost("login")]
-    public ActionResult Login(
+    public ActionResult<JWTResult> Login(
         [FromBody] LoginDTO body
     )
     {
@@ -29,5 +31,9 @@ public class AuthController : ControllerBase
         {
             return BadRequest("Dados de login inválidos");
         }
+
+        var objetoRetorno = _tokenService.GerarJwt(usuario);
+
+        return Ok(objetoRetorno);
     }
 }

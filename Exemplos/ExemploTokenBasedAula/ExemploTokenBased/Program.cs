@@ -1,7 +1,9 @@
 using ExemploTokenBased.Data;
 using ExemploTokenBased.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +14,30 @@ builder.Services
         x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
         x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
     })
-    .AddJwtBearer();
+    .AddJwtBearer(x =>
+    {
+        x.SaveToken = true;
+        x.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            ValidateIssuer = true,
+            ValidateAudience = false,
+            ValidIssuer = "DevInAudaces",
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(
+                    builder.Configuration.GetValue<string>("JWT_SECRET")
+                )
+            )
+        };
+    }).Services
+    .AddAuthorization(opcoes =>
+    {
+        opcoes.AddPolicy(
+            "SetorVendas",
+            config => config
+                .RequireClaim(TokenService.ClaimSetorUsuario, "Vendas")
+        );
+    });
 
 builder.Services
     .AddScoped<IUsuarioService, UsuarioService>()
