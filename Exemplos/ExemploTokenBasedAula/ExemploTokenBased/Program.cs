@@ -41,7 +41,8 @@ builder.Services
 
 builder.Services
     .AddScoped<IUsuarioService, UsuarioService>()
-    .AddScoped<ITokenService, TokenService>();
+    .AddScoped<ITokenService, TokenService>()
+    .AddScoped<IPasswordHasher, Argon2PasswordHasher>();
 
 builder.Services
     .AddDbContext<TokenBasedContext>()

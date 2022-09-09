@@ -1,4 +1,5 @@
 ﻿using ExemploTokenBased.Model;
+using ExemploTokenBased.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace ExemploTokenBased.Data;
@@ -6,10 +7,15 @@ namespace ExemploTokenBased.Data;
 public class TokenBasedContext : DbContext
 {
     private readonly IConfiguration _configuration;
+    private readonly IPasswordHasher _passwordHasher;
 
-    public TokenBasedContext(IConfiguration configuration)
+    public TokenBasedContext(
+        IConfiguration configuration,
+        IPasswordHasher passwordHasher
+    )
     {
         _configuration = configuration;
+        _passwordHasher = passwordHasher;
     }
 
     public DbSet<Usuario> Usuarios { get; set; }
@@ -59,8 +65,7 @@ public class TokenBasedContext : DbContext
                     Papel = UsuarioPapel.Admin,
                     NomeUsuario = "admin",
                     Setor = "Administração",
-                    HashSenha = "123abc"
-                    //HashSenha = new PasswordHasher().Hash("123abc")
+                    HashSenha = _passwordHasher.CriarHash("123abc")
                 },
                 new Usuario
                 {
@@ -68,7 +73,7 @@ public class TokenBasedContext : DbContext
                     Papel = UsuarioPapel.Admin,
                     NomeUsuario = "carlos",
                     Setor = "Vendas",
-                    HashSenha = "123abc"
+                    HashSenha = _passwordHasher.CriarHash("123abc")
                 }
             );
         });

@@ -6,10 +6,15 @@ namespace ExemploTokenBased.Services
     public class UsuarioService : IUsuarioService
     {
         private readonly TokenBasedContext _context;
+        private readonly IPasswordHasher _passwordHasher;
 
-        public UsuarioService(TokenBasedContext context)
+        public UsuarioService(
+            TokenBasedContext context, 
+            IPasswordHasher passwordHasher
+        )
         {
             _context = context;
+            _passwordHasher = passwordHasher;
         }
 
         public Usuario AutenticarUsuario(string nomeUsuario, string senha)
@@ -22,7 +27,12 @@ namespace ExemploTokenBased.Services
                 return null;
             }
 
-            if(usuario.HashSenha == senha)
+            var verificacaoSenha = _passwordHasher.VerificarHash(
+                usuario.HashSenha,
+                senha
+            );
+
+            if(verificacaoSenha)
             {
                 return usuario;
             }
